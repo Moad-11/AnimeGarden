@@ -7,6 +7,64 @@ const loadingElement = document.getElementById('loading');
 const errorMessage = document.getElementById('error-message');
 const retryButton = document.getElementById('retry-btn');
 
+// بيانات احتياطية جميلة
+const fallbackNews = [
+    {
+        id: 1,
+        title: "أحدث أنمي الموسم من MyAnimeList",
+        summary: "تابع أحدث وأشهر مسلسلات الأنمي المعروضة هذا الموسم مع تقييمات الجمهور والتفاصيل الكاملة.",
+        source: "MyAnimeList",
+        date: new Date().toISOString().split('T')[0],
+        link: "https://myanimelist.net",
+        image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&h=250&fit=crop"
+    },
+    {
+        id: 2,
+        title: "تصنيف أفضل الأنمي حالياً",
+        summary: "تعرف على أعلى الأنمي تقييماً هذا الأسبوع حسب تصويتات الملايين من المشاهدين حول العالم.",
+        source: "MyAnimeList",
+        date: new Date().toISOString().split('T')[0],
+        link: "https://myanimelist.net/topanime.php",
+        image: "https://images.unsplash.com/photo-1578632749014-ca77efd052eb?w=400&h=250&fit=crop"
+    },
+    {
+        id: 3,
+        title: "أنمي جديدة تم الإعلان عنها",
+        summary: "آخر الأخبار حول المسلسلات الجديدة التي تم الإعلان عنها للعرض في المواسم القادمة.",
+        source: "MyAnimeList",
+        date: new Date().toISOString().split('T')[0],
+        link: "https://myanimelist.net/season",
+        image: "https://images.unsplash.com/photo-1541562232579-512a21360020?w=400&h=250&fit=crop"
+    },
+    {
+        id: 4,
+        title: "أفلام أنمي قادمة",
+        summary: "استعد لأقوى أفلام الأنمي التي ستعرض في السينمات العالمية قريباً بتقنيات متطورة.",
+        source: "MyAnimeList",
+        date: new Date().toISOString().split('T')[0],
+        link: "https://myanimelist.net/anime.php?type=Movie",
+        image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=250&fit=crop"
+    },
+    {
+        id: 5,
+        title: "أنمي كلاسيكية يجب مشاهدتها",
+        summary: "رحلة إلى عالم الأنمي الكلاسيكي مع أفضل المسلسلات التي شكلت تاريخ الأنمي الحديث.",
+        source: "MyAnimeList",
+        date: new Date().toISOString().split('T')[0],
+        link: "https://myanimelist.net/topanime.php?type=bypopularity",
+        image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=250&fit=crop"
+    },
+    {
+        id: 6,
+        title: "توقعات أنمي 2024",
+        summary: "تعرف على أهم المسلسلات المتوقعة في عام 2024 وأكثر الأنمي ترقباً من الجمهور.",
+        source: "MyAnimeList",
+        date: new Date().toISOString().split('T')[0],
+        link: "https://myanimelist.net/anime/season/2024",
+        image: "https://images.unsplash.com/photo-1489599809505-7c8e1c50b488?w=400&h=250&fit=crop"
+    }
+];
+
 // وظيفة تحميل الأخبار من MyAnimeList
 async function loadNewsFromMAL() {
     console.log('جلب أخبار من MyAnimeList...');
@@ -15,11 +73,16 @@ async function loadNewsFromMAL() {
     
     try {
         // جلب الأنمي الأكثر شيوعاً هذا الموسم
-        const response = await fetch(`${MAL_API_URL}/seasons/now`);
+        const response = await fetch(`${MAL_API_URL}/top/anime?filter=airing&limit=6`);
+        
+        if (!response.ok) {
+            throw new Error(`خطأ في API: ${response.status}`);
+        }
+        
         const data = await response.json();
         
         if (data.data && data.data.length > 0) {
-            const translatedNews = await translateAnimeToArabic(data.data.slice(0, 6));
+            const translatedNews = translateAnimeToArabic(data.data);
             displayNews(translatedNews);
         } else {
             throw new Error('لا توجد بيانات');
@@ -34,24 +97,19 @@ async function loadNewsFromMAL() {
 }
 
 // ترجمة بيانات الأنمي إلى أخبار عربية
-async function translateAnimeToArabic(animeList) {
-    const news = [];
-    
-    for (const anime of animeList) {
-        const arabicTitle = await translateToArabic(anime.title);
-        const newsItem = {
+function translateAnimeToArabic(animeList) {
+    return animeList.map((anime, index) => {
+        const arabicTitle = translateToArabic(anime.title);
+        return {
             id: anime.mal_id,
-            title: `أخبار حول: ${arabicTitle}`,
+            title: `${arabicTitle} - أحدث الأخبار`,
             summary: generateArabicSummary(anime),
             source: "MyAnimeList",
             date: new Date().toISOString().split('T')[0],
             link: anime.url,
-            image: anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url
+            image: anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || getDefaultImage(index)
         };
-        news.push(newsItem);
-    }
-    
-    return news;
+    });
 }
 
 // توليد ملخص عربي للأنمي
@@ -59,8 +117,9 @@ function generateArabicSummary(anime) {
     const episodes = anime.episodes ? ` • ${anime.episodes} حلقة` : '';
     const score = anime.score ? ` • التقييم: ${anime.score}/10` : '';
     const type = anime.type ? ` • النوع: ${translateType(anime.type)}` : '';
+    const status = anime.status ? ` • الحالة: ${translateStatus(anime.status)}` : '';
     
-    return `أنمي ${translateType(anime.type)} يعرض حالياً${episodes}${score}${type}. تابع آخر التحديثات والمشاهدات.`;
+    return `أنمي ${translateType(anime.type)}${episodes}${score}${type}${status}. تابع آخر التحديثات والمشاهدات على MyAnimeList.`;
 }
 
 // ترجمة الأنواع
@@ -75,9 +134,18 @@ function translateType(type) {
     return types[type] || type;
 }
 
-// ترجمة النصوص للعربية (باستخدام API مجاني)
-async function translateToArabic(text) {
-    // نستخدم ترجمة بسيطة أولاً، يمكن تطويرها لاحقاً
+// ترجمة الحالة
+function translateStatus(status) {
+    const statuses = {
+        'Currently Airing': 'يعرض حالياً',
+        'Finished Airing': 'منتهي',
+        'Not yet aired': 'لم يعرض بعد'
+    };
+    return statuses[status] || status;
+}
+
+// ترجمة النصوص للعربية
+function translateToArabic(text) {
     const commonTranslations = {
         'Attack on Titan': 'هجوم العمالقة',
         'One Piece': 'ون بيس',
@@ -88,7 +156,11 @@ async function translateToArabic(text) {
         'Chainsaw Man': 'رجل المنشار',
         'My Hero Academia': 'أكاديمية الأبطال',
         'Dragon Ball': 'دراغون بول',
-        'Tokyo Revengers': 'منتقو طوكيو'
+        'Tokyo Revengers': 'منتقو طوكيو',
+        'One Punch Man': 'ون بانش مان',
+        'Death Note': 'دفتر الموت',
+        'Fullmetal Alchemist': 'الخيميائي المعدني',
+        'Hunter x Hunter': 'هنتر x هنتر'
     };
     
     // البحث في الترجمة المعروفة أولاً
@@ -104,63 +176,6 @@ async function translateToArabic(text) {
 
 // وظيفة بديلة إذا فشل الاتصال
 function useFallbackNews() {
-    const fallbackNews = [
-        {
-            id: 1,
-            title: "أحدث أنمي الموسم من MyAnimeList",
-            summary: "تابع أحدث وأشهر مسلسلات الأنمي المعروضة هذا الموسم مع تقييمات الجمهور.",
-            source: "MyAnimeList",
-            date: new Date().toISOString().split('T')[0],
-            link: "https://myanimelist.net",
-            image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&h=250&fit=crop"
-        },
-        {
-            id: 2,
-            title: "تصنيف أفضل الأنمي حالياً",
-            summary: "تعرف على أعلى الأنمي تقييماً هذا الأسبوع حسب تصويتات الملايين من المشاهدين.",
-            source: "MyAnimeList",
-            date: new Date().toISOString().split('T')[0],
-            link: "https://myanimelist.net/topanime.php",
-            image: "https://images.unsplash.com/photo-1578632749014-ca77efd052eb?w=400&h=250&fit=crop"
-        },
-        {
-            id: 3,
-            title: "أنمي جديدة تم الإعلان عنها",
-            summary: "آخر الأخبار حول المسلسلات الجديدة التي تم الإعلان عنها للعرض في المواسم القادمة.",
-            source: "MyAnimeList",
-            date: new Date().toISOString().split('T')[0],
-            link: "https://myanimelist.net/season",
-            image: "https://images.unsplash.com/photo-1541562232579-512a21360020?w=400&h=250&fit=crop"
-        },
-        {
-            id: 4,
-            title: "أفلام أنمي قادمة",
-            summary: "استعد لأقوى أفلام الأنمي التي ستعرض في السينمات العالمية قريباً.",
-            source: "MyAnimeList",
-            date: new Date().toISOString().split('T')[0],
-            link: "https://myanimelist.net/anime.php?q=&type=0&score=0&status=0&p=0&r=0&sm=0&sd=0&sy=0&em=0&ed=0&ey=0&c[0]=a&c[1]=b&c[2]=c&c[3]=f&gx=0",
-            image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=250&fit=crop"
-        },
-        {
-            id: 5,
-            title: "أنمي كلاسيكية يجب مشاهدتها",
-            summary: "رحلة إلى عالم الأنمي الكلاسيكي مع أفضل المسلسلات التي شكلت تاريخ الأنمي.",
-            source: "MyAnimeList",
-            date: new Date().toISOString().split('T')[0],
-            link: "https://myanimelist.net/topanime.php?type=bypopularity",
-            image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=250&fit=crop"
-        },
-        {
-            id: 6,
-            title: "توقعات أنمي 2024",
-            summary: "تعرف على أهم المسلسلات المتوقعة في عام 2024 وأكثر الأنمي ترقباً.",
-            source: "MyAnimeList",
-            date: new Date().toISOString().split('T')[0],
-            link: "https://myanimelist.net/anime/season/2024",
-            image: "https://images.unsplash.com/photo-1489599809505-7c8e1c50b488?w=400&h=250&fit=crop"
-        }
-    ];
-    
     displayNews(fallbackNews);
 }
 
@@ -175,7 +190,19 @@ function hideLoading() {
     loadingElement.classList.add('hidden');
 }
 
-// وظيفة عرض الأخبار (نفسها مع تحسينات)
+function getDefaultImage(index) {
+    const defaultImages = [
+        'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&h=250&fit=crop',
+        'https://images.unsplash.com/photo-1578632749014-ca77efd052eb?w=400&h=250&fit=crop',
+        'https://images.unsplash.com/photo-1541562232579-512a21360020?w=400&h=250&fit=crop',
+        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=250&fit=crop',
+        'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=250&fit=crop',
+        'https://images.unsplash.com/photo-1489599809505-7c8e1c50b488?w=400&h=250&fit=crop'
+    ];
+    return defaultImages[index % defaultImages.length];
+}
+
+// وظيفة عرض الأخبار
 function displayNews(news) {
     console.log('عرض الأخبار:', news);
     
@@ -192,8 +219,10 @@ function displayNews(news) {
     const newsHTML = news.map(item => `
         <article class="news-card">
             <div class="news-image">
-                <img src="${item.image || getDefaultImage(item.id)}" alt="${item.title}" loading="lazy">
-                <div class="image-overlay"></div>
+                <img src="${item.image}" alt="${item.title}" loading="lazy">
+                <div class="image-overlay">
+                    <span>${item.source}</span>
+                </div>
             </div>
             <div class="news-content">
                 <div class="news-date">${formatDate(item.date)}</div>
@@ -201,25 +230,16 @@ function displayNews(news) {
                 <p class="news-summary">${item.summary}</p>
                 <div class="news-meta">
                     <span class="news-source">${item.source}</span>
-                    <a href="${item.link}" class="read-more" target="_blank" rel="noopener">اذهب ل MyAnimeList</a>
+                    <a href="${item.link}" class="read-more" target="_blank" rel="noopener">
+                        <i class="fas fa-external-link-alt"></i>
+                        اذهب ل MyAnimeList
+                    </a>
                 </div>
             </div>
         </article>
     `).join('');
     
     newsContainer.innerHTML = newsHTML;
-}
-
-function getDefaultImage(id) {
-    const defaultImages = [
-        'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1578632749014-ca77efd052eb?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1541562232579-512a21360020?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1489599809505-7c8e1c50b488?w=400&h=250&fit=crop'
-    ];
-    return defaultImages[id % defaultImages.length];
 }
 
 function formatDate(dateString) {
@@ -232,10 +252,21 @@ function formatDate(dateString) {
     }
 }
 
+// شريط التقدم
+function updateProgressBar() {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.querySelector('.progress-bar').style.width = scrolled + "%";
+}
+
 // التشغيل
 document.addEventListener('DOMContentLoaded', function() {
     console.log('بدء تحميل أخبار الأنمي...');
     loadNewsFromMAL();
+    
+    // شريط التقدم
+    window.addEventListener('scroll', updateProgressBar);
 });
 
 if (retryButton) {
