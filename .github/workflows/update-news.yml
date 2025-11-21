@@ -1,0 +1,33 @@
+name: Update Anime News Daily
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # كل يوم الساعة 8 صباحاً
+  workflow_dispatch:  # يسمح بالتشغيل اليدوي
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        
+    - name: Install dependencies
+      run: pip install requests beautifulsoup4
+        
+    - name: Run news scraper
+      run: python scripts/fetch_news.py
+      
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data/news.json
+        git commit -m "Update news automatically" || exit 0
+        git push
