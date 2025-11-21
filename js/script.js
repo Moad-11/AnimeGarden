@@ -1,8 +1,8 @@
 // ===================================================================
-// ==   NEW AND CORRECTED script.js FILE - COPY EVERYTHING      ==
+// ==   NEW script.js - USES JIKAN API INSTEAD OF RSS FEEDS      ==
 // ===================================================================
 
-// بيانات أخبار احتياطية (ملاحظة: تمت إزالة 'fullContent' لأنه كان يسبب المشاكل)
+// بيانات أخبار احتياطية (للاستخدام في حال فشل API)
 const FALLBACK_NEWS = [
     {
         id: 1,
@@ -33,36 +33,6 @@ const FALLBACK_NEWS = [
         image: "https://www.animenewsnetwork.com/thumbnails/crop600x315g9e9/cms/news.2/197165/mappa.jpg",
         category: "أخبار الاستوديوهات",
         tags: ["MAPPA", "استوديو", "مشاريع جديدة", "Chainsaw Man"]
-    },
-    {
-        id: 4,
-        title: "أنمي One Piece يدخل قوس Egghead Island بتحسينات تقنية مذهلة",
-        summary: "دخل أنمي One Piece قوس Egghead Island الجديد بتحسينات تقنية كبيرة في الرسوم والأنيميشن أثارت إعجاب المشاهدين.",
-        source: "Crunchyroll News",
-        date: "2024-01-17",
-        image: "https://www.animenewsnetwork.com/thumbnails/crop600x315g9e9/cms/news.2/197152/one-piece.jpg",
-        category: "أخبار المسلسلات",
-        tags: ["One Piece", "قوس جديد", "تحسينات", "أنيميشن"]
-    },
-    {
-        id: 5,
-        title: "مسابقة Anime of the Year 2023 تعلن عن الفائزين بمفاجآت كبيرة",
-        summary: "انتهت مسابقة أفضل أنمي لعام 2023 بتتويج مسلسلات وأفلام في فئات مختلفة، مع مفاجآت في بعض النتائج.",
-        source: "Anime News Network",
-        date: "2024-01-16",
-        image: "https://www.animenewsnetwork.com/thumbnails/crop600x315g9e9/cms/news.2/197138/awards.jpg",
-        category: "مسابقات وأحداث",
-        tags: ["مسابقة", "2023", "أفضل أنمي", "نتائج"]
-    },
-    {
-        id: 6,
-        title: "إطلاق منصة أنمي عربية جديدة بخدمات متطورة وأسعار تنافسية",
-        summary: "تم الإعلان عن منصة بث عربية جديدة مخصصة للأنمي تقدم محتوى حصرياً ومترجماً بالعربية مع ميزات فريدة.",
-        source: "Crunchyroll News",
-        date: "2024-01-15",
-        image: "https://images.unsplash.com/photo-1489599809505-7c8e1c50b488?w=800&h=400&fit=crop",
-        category: "أخبار المنصات",
-        tags: ["منصة عربية", "بث", "أنمي", "العالم العربي"]
     }
 ];
 
@@ -161,15 +131,61 @@ function displayNews(news) {
 function showFullNews(newsId) {
     const newsItem = currentNews.find(item => item.id === newsId);
     if (newsItem) {
-        // حفظ الخبر في localStorage للوصول إليه في الصفحة الأخرى
         localStorage.setItem('currentNews', JSON.stringify(newsItem));
-        
-        // فتح صفحة جديدة لعرض الخبر الكامل
         const newWindow = window.open('news-detail.html', '_blank');
         if (!newWindow) {
             alert('يرجى السماح بالنوافذ المنبثقة لعرض الخبر الكامل');
         }
     }
+}
+
+// دالة جديدة لجلب الأخبار من Jikan API
+async function fetchJikanNews() {
+    console.log('محاولة جلب الأخبار من Jikan API...');
+    try {
+        const response = await fetch('https://api.jikan.moe/v4/news');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        const newsFromAPI = data.data.slice(0, 6).map((item, index) => {
+            return {
+                id: index + 1,
+                title: item.title,
+                summary: item.excerpt,
+                source: `MyAnimeList (${item.author_username})`,
+                date: item.date,
+                image: item.images.jpg.image_url || 'https://images.unsplash.com/photo-1541562232579-512a21360020?w=600&h=400&fit=crop',
+                category: getCategoryFromTitle(item.title),
+                tags: extractTagsFromTitle(item.title),
+                link: item.url
+            };
+        });
+
+        return newsFromAPI;
+
+    } catch (error) {
+        console.error('فشل جلب الأخبار من Jikan API:', error);
+        return null;
+    }
+}
+
+// وظائف مساعدة
+function getCategoryFromTitle(title) {
+    const titleLower = title.toLowerCase();
+    if (titleLower.includes('film') || titleLower.includes('movie') || titleLower.includes('فيلم')) return "أخبار الأفلام";
+    if (titleLower.includes('season') || titleLower.includes('موسم') || titleLower.includes('episode')) return "أخبار المسلسلات";
+    if (titleLower.includes('studio') || titleLower.includes('استوديو')) return "أخبار الاستوديوهات";
+    if (titleLower.includes('platform') || titleLower.includes('منصة')) return "أخبار المنصات";
+    if (titleLower.includes('contest') || titleLower.includes('مسابقة') || titleLower.includes('award')) return "مسابقات وأحداث";
+    return "أخبار عامة";
+}
+
+function extractTagsFromTitle(title) {
+    const commonTags = ['أنمي', 'anime', 'ياباني'];
+    const titleTags = title.toLowerCase().split(' ').slice(0, 3);
+    return [...commonTags, ...titleTags].slice(0, 5);
 }
 
 // الوظيفة الرئيسية لتحميل الأخبار
@@ -178,13 +194,22 @@ async function loadNews() {
     showLoading();
 
     try {
-        // نستخدم الأخبار الاحتياطية مباشرة لضمان عمل الموقع
-        console.log('استخدام الأخبار المحلية المعدة.');
-        currentNews = FALLBACK_NEWS;
+        // 1. محاولة جلب الأخبار الحية من API
+        const liveNews = await fetchJikanNews();
+        
+        if (liveNews && liveNews.length > 0) {
+            console.log('نجح جلب الأخبار من Jikan API.');
+            currentNews = liveNews;
+        } else {
+            // 2. إذا فشل API، استخدم الأخبار الاحتياطية
+            console.log('فشل API، استخدام الأخبار المحلية المعدة.');
+            currentNews = FALLBACK_NEWS;
+        }
+        
         displayNews(currentNews);
 
     } catch (error) {
-        console.error('حدث خطأ:', error);
+        console.error('حدث خطأ عام:', error);
         showError();
     } finally {
         hideLoading();
