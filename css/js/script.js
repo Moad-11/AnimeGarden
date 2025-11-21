@@ -139,3 +139,4 @@ document.head.appendChild(style);
 // أحداث
 document.addEventListener('DOMContentLoaded', loadNews);
 retryButton.addEventListener('click', loadNews);
+
