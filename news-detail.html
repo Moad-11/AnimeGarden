@@ -1,11 +1,10 @@
 // ===================================================================
-// ==   NEW SCRIPT FOR news-detail.html - REPLACE THE SCRIPT TAG  ==
+// ==   UPDATED SCRIPT FOR news-detail.html                       ==
 // ===================================================================
 document.addEventListener('DOMContentLoaded', function() {
     const newsContainer = document.getElementById('news-detail-container');
     const savedNews = localStorage.getItem('currentNews');
     
-    // دالة لتنسيق التاريخ
     function formatDate(dateString) {
         try {
             const date = new Date(dateString);
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedNews) {
         const newsItem = JSON.parse(savedNews);
         
-        // بناء محتوى الصفحة بشكل ديناميكي
         newsContainer.innerHTML = `
             <div class="news-detail">
                 <h1>${newsItem.title}</h1>
@@ -32,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="news-content">
                     <p>${newsItem.summary}</p>
-                    <p>هذا مجرد ملخص للخبر. للحصول على التفاصيل الكاملة، يرجى زيارة المصدر الأصلي للخبر.</p>
+                    ${newsItem.link ? `<p><a href="${newsItem.link}" target="_blank" style="color: var(--primary-color); font-weight: bold;">اقرأ المزيد من المصدر الأصلي</a></p>` : ''}
                 </div>
                 
                 <div class="news-tags">
@@ -41,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        // تحديث عنوان الصفحة
         document.title = newsItem.title + ' - أنمي جاردن';
     } else {
         newsContainer.innerHTML = `
