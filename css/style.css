@@ -243,6 +243,7 @@ body {
     transition: var(--transition);
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
 }
 
 .news-card::before {
@@ -289,6 +290,7 @@ body {
     background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.7));
     display: flex;
     align-items: flex-end;
+    justify-content: flex-start;
     padding: 1.5rem;
     color: white;
     opacity: 0;
@@ -297,6 +299,21 @@ body {
 
 .news-card:hover .image-overlay {
     opacity: 1;
+}
+
+/* فئة الخبر */
+.news-category {
+    background: linear-gradient(135deg, var(--accent-color), #FF4757);
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 3;
+    box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
 }
 
 .news-content {
@@ -314,9 +331,8 @@ body {
     font-weight: 600;
 }
 
-.news-date::before {
-    content: '📅';
-    font-size: 0.8rem;
+.news-date i {
+    color: var(--accent-color);
 }
 
 .news-title {
@@ -334,7 +350,7 @@ body {
 
 .news-summary {
     color: var(--text-light);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     line-height: 1.7;
     font-size: 1rem;
     display: -webkit-box;
@@ -342,6 +358,30 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
     min-height: 4.8em;
+}
+
+/* تاجات الخبر */
+.news-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.news-tag {
+    background: rgba(139, 95, 191, 0.1);
+    color: var(--primary-color);
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(139, 95, 191, 0.2);
+    transition: var(--transition);
+}
+
+.news-tag:hover {
+    background: rgba(139, 95, 191, 0.2);
+    transform: translateY(-2px);
 }
 
 .news-meta {
@@ -362,9 +402,8 @@ body {
     gap: 0.5rem;
 }
 
-.news-source::before {
-    content: '🏷️';
-    font-size: 1rem;
+.news-source i {
+    color: var(--accent-color);
 }
 
 .read-more {
@@ -499,6 +538,117 @@ body {
 .no-news p {
     color: rgba(255, 255, 255, 0.7);
     font-size: 1.2rem;
+}
+
+/* صفحة تفاصيل الخبر */
+.news-detail {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-hover);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.news-detail h2 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.news-detail .news-meta {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    color: var(--text-light);
+    font-weight: 600;
+    flex-wrap: wrap;
+}
+
+.news-detail .news-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(139, 95, 191, 0.1);
+    border-radius: 20px;
+}
+
+.news-detail img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow);
+}
+
+.news-detail .news-content {
+    line-height: 1.8;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.news-detail .news-content h3 {
+    color: var(--primary-color);
+    margin: 2rem 0 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.news-detail .news-content h4 {
+    color: var(--secondary-color);
+    margin: 1.5rem 0 1rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.news-detail .news-content p {
+    margin-bottom: 1.5rem;
+    text-align: justify;
+}
+
+.news-detail .news-content ul, 
+.news-detail .news-content ol {
+    margin: 1.5rem 0;
+    padding-right: 2rem;
+}
+
+.news-detail .news-content li {
+    margin-bottom: 0.8rem;
+    position: relative;
+}
+
+.news-detail .news-content ul li::before {
+    content: '•';
+    color: var(--accent-color);
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-right: -1em;
+}
+
+.news-detail .news-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 2.5rem 0 1rem;
+    padding-top: 2rem;
+    border-top: 2px solid #F1F5F9;
+}
+
+.news-detail .news-tags span {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(139, 95, 191, 0.3);
 }
 
 /* الفوتر */
@@ -681,6 +831,19 @@ body {
         justify-content: center;
     }
     
+    .news-detail {
+        margin: 1rem;
+        padding: 2rem;
+    }
+    
+    .news-detail h2 {
+        font-size: 1.8rem;
+    }
+    
+    .news-detail img {
+        height: 250px;
+    }
+    
     .footer-content {
         grid-template-columns: 1fr;
         text-align: center;
@@ -726,6 +889,19 @@ body {
     .news-card {
         margin: 0 0.5rem;
     }
+    
+    .news-detail {
+        padding: 1.5rem;
+    }
+    
+    .news-detail h2 {
+        font-size: 1.5rem;
+    }
+    
+    .news-detail .news-meta {
+        flex-direction: column;
+        gap: 1rem;
+    }
 }
 
 /* تحسينات الأداء */
@@ -743,7 +919,8 @@ body {
     .hero,
     .error-message,
     .no-news,
-    .footer {
+    .footer,
+    .news-detail {
         background: rgba(255, 255, 255, 0.98);
     }
     
@@ -790,4 +967,37 @@ body {
         background: white !important;
         color: black !important;
     }
+}
+
+/* تأثيرات خاصة للأنمي */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* تحسينات للشاشات الكبيرة */
+@media (min-width: 1200px) {
+    .news-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* تحسين التمرير السلس */
+html {
+    scroll-behavior: smooth;
+}
+
+/* تحسين اختيار النص */
+::selection {
+    background: rgba(139, 95, 191, 0.3);
+    color: var(--text-color);
+}
+
+::-moz-selection {
+    background: rgba(139, 95, 191, 0.3);
+    color: var(--text-color);
 }
