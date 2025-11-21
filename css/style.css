@@ -8,7 +8,9 @@
     --bg-color: #f8f9fa;
     --white: #ffffff;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.15);
     --border-radius: 12px;
+    --transition: all 0.3s ease;
 }
 
 * {
@@ -27,6 +29,7 @@ body {
     color: var(--text-color);
     background-color: var(--bg-color);
     direction: rtl;
+    overflow-x: hidden;
 }
 
 .container {
@@ -44,18 +47,21 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
+    backdrop-filter: blur(10px);
 }
 
 .header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .logo h1 {
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 0.2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .logo p {
@@ -66,20 +72,40 @@ body {
 .nav {
     display: flex;
     gap: 2rem;
+    flex-wrap: wrap;
 }
 
 .nav-link {
     color: var(--white);
     text-decoration: none;
     font-weight: 500;
-    transition: opacity 0.3s;
+    transition: var(--transition);
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
+    position: relative;
 }
 
 .nav-link:hover,
 .nav-link.active {
     background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--white);
+    transition: var(--transition);
+    transform: translateX(50%);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 80%;
 }
 
 /* قسم البطل */
@@ -88,12 +114,32 @@ body {
     color: var(--white);
     padding: 4rem 0;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
+    background-size: cover;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
 }
 
 .hero-content h2 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
     font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 0.8s ease;
 }
 
 .hero-content p {
@@ -101,27 +147,65 @@ body {
     max-width: 600px;
     margin: 0 auto;
     opacity: 0.9;
+    animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* القسم الرئيسي */
 .main {
     padding: 4rem 0;
+    min-height: 60vh;
 }
 
 .section-header {
     text-align: center;
     margin-bottom: 3rem;
+    animation: fadeIn 0.8s ease;
 }
 
 .section-header h2 {
     font-size: 2.2rem;
     color: var(--primary-color);
     margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 50%;
+    transform: translateX(50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
 }
 
 .section-header p {
     color: var(--text-light);
     font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* شبكة الأخبار */
@@ -137,33 +221,98 @@ body {
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: var(--shadow);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.6s ease;
+    position: relative;
+}
+
+.news-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transition: var(--transition);
+}
+
+.news-card:hover::before {
+    transform: scaleX(1);
 }
 
 .news-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .news-image {
     width: 100%;
     height: 200px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--white);
-    font-size: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.news-card:hover .news-image img {
+    transform: scale(1.1);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.3));
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.news-card:hover .image-overlay {
+    opacity: 1;
 }
 
 .news-content {
     padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
 }
 
 .news-date {
     color: var(--text-light);
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.news-date::before {
+    content: '📅';
+    font-size: 0.8rem;
 }
 
 .news-title {
@@ -171,12 +320,23 @@ body {
     margin-bottom: 1rem;
     color: var(--text-color);
     line-height: 1.4;
+    min-height: 3.5em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .news-summary {
     color: var(--text-light);
     margin-bottom: 1.5rem;
     line-height: 1.6;
+    text-align: justify;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .news-meta {
@@ -184,46 +344,95 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
 }
 
 .news-source {
     color: var(--primary-color);
     font-weight: 500;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.news-source::before {
+    content: '🏷️';
+    font-size: 0.8rem;
 }
 
 .read-more {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: var(--white);
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     border-radius: var(--border-radius);
     text-decoration: none;
     font-weight: 500;
-    transition: transform 0.3s;
+    transition: var(--transition);
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.read-more::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: var(--transition);
+}
+
+.read-more:hover::before {
+    left: 100%;
 }
 
 .read-more:hover {
     transform: translateX(-5px);
+    box-shadow: 0 4px 12px rgba(106, 17, 203, 0.3);
 }
 
 /* التحميل والخطأ */
 .loading {
     text-align: center;
     padding: 3rem;
+    color: var(--text-light);
 }
 
 .spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
+    border: 4px solid rgba(106, 17, 203, 0.2);
     border-left-color: var(--primary-color);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     animation: spin 1s linear infinite;
-    margin: 0 auto 1rem;
+    margin: 0 auto 1.5rem;
 }
 
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+.loading p {
+    font-size: 1.1rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
     }
 }
 
@@ -233,6 +442,25 @@ body {
     background: var(--white);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+.error-message p {
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
 }
 
 .retry-btn {
@@ -245,15 +473,43 @@ body {
     font-weight: 500;
     cursor: pointer;
     margin-top: 1rem;
-    transition: background 0.3s;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .retry-btn:hover {
     background: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.retry-btn::before {
+    content: '🔄';
 }
 
 .hidden {
     display: none;
+}
+
+.no-news {
+    text-align: center;
+    padding: 3rem;
+    grid-column: 1 / -1;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.no-news h3 {
+    color: var(--text-light);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.no-news p {
+    color: var(--text-light);
 }
 
 /* الفوتر */
@@ -261,6 +517,7 @@ body {
     background: #2c3e50;
     color: var(--white);
     padding: 3rem 0 1rem;
+    margin-top: 4rem;
 }
 
 .footer-content {
@@ -273,6 +530,24 @@ body {
 .footer-section h3 {
     margin-bottom: 1rem;
     font-size: 1.2rem;
+    position: relative;
+    display: inline-block;
+}
+
+.footer-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    right: 0;
+    width: 30px;
+    height: 2px;
+    background: var(--accent-color);
+}
+
+.footer-section p {
+    color: #bdc3c7;
+    line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
 .footer-section a {
@@ -280,16 +555,31 @@ body {
     text-decoration: none;
     display: block;
     margin-bottom: 0.5rem;
-    transition: color 0.3s;
+    transition: var(--transition);
+    padding: 0.3rem 0;
 }
 
 .footer-section a:hover {
     color: var(--accent-color);
+    transform: translateX(-5px);
 }
 
 .social-links {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.social-links a {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.social-links a:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
 }
 
 .footer-bottom {
@@ -297,6 +587,33 @@ body {
     padding-top: 2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+/* تأثيرات التمرير */
+.news-card,
+.section-header {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.news-card.visible,
+.section-header.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* شريط التقدم */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    z-index: 1001;
+    transition: width 0.3s ease;
 }
 
 /* التجاوب */
@@ -304,10 +621,17 @@ body {
     .header .container {
         flex-direction: column;
         gap: 1rem;
+        text-align: center;
     }
     
     .nav {
         gap: 1rem;
+        justify-content: center;
+    }
+    
+    .nav-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
     }
     
     .hero-content h2 {
@@ -316,10 +640,31 @@ body {
     
     .hero-content p {
         font-size: 1rem;
+        padding: 0 1rem;
     }
     
     .news-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .section-header p {
+        font-size: 1rem;
+    }
+    
+    .news-meta {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .read-more {
+        align-self: stretch;
+        text-align: center;
     }
     
     .footer-content {
@@ -329,5 +674,111 @@ body {
     
     .social-links {
         justify-content: center;
+    }
+    
+    .footer-section h3::after {
+        right: 50%;
+        transform: translateX(50%);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .hero {
+        padding: 3rem 0;
+    }
+    
+    .hero-content h2 {
+        font-size: 1.6rem;
+    }
+    
+    .main {
+        padding: 2rem 0;
+    }
+    
+    .news-content {
+        padding: 1rem;
+    }
+    
+    .news-title {
+        font-size: 1.1rem;
+        min-height: auto;
+    }
+    
+    .news-summary {
+        font-size: 0.9rem;
+    }
+}
+
+/* تأثيرات خاصة للأنمي */
+.anime-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, var(--accent-color), #ff4757);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    z-index: 2;
+    animation: pulse 2s infinite;
+}
+
+/* تحسينات للعرض على الشاشات الكبيرة */
+@media (min-width: 1200px) {
+    .news-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* تحسينات الأداء */
+.news-image img {
+    will-change: transform;
+}
+
+.news-card {
+    will-change: transform;
+}
+
+/* دعم متصفحات قديمة */
+@supports not (backdrop-filter: blur(10px)) {
+    .header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+}
+
+/* تحسين الوصول */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* تركيز واضح للعناصر */
+.read-more:focus,
+.retry-btn:focus,
+.nav-link:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* تحسين الطباعة */
+@media print {
+    .header,
+    .footer,
+    .read-more {
+        display: none;
+    }
+    
+    .news-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
     }
 }
