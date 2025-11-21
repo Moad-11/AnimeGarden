@@ -1,62 +1,60 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قراءة الخبر الكامل - أنمي جاردن</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <header style="text-align: center; margin: 2rem 0;">
-            <h1 style="color: var(--primary-color);">أنمي جاردن</h1>
-            <p>أخبار الأنمي بالعربية</p>
-        </header>
+// ===================================================================
+// ==   NEW SCRIPT FOR news-detail.html - REPLACE THE SCRIPT TAG  ==
+// ===================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const newsContainer = document.getElementById('news-detail-container');
+    const savedNews = localStorage.getItem('currentNews');
+    
+    // دالة لتنسيق التاريخ
+    function formatDate(dateString) {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+        } catch (error) {
+            return "تاريخ غير متوفر";
+        }
+    }
 
-        <main id="news-detail-container" style="min-height: 80vh;">
-            <!-- سيتم عرض الخبر الكامل هنا -->
-        </main>
-
-        <footer style="text-align: center; margin: 3rem 0; color: var(--text-light);">
-            <button onclick="window.close()" class="read-more" style="margin: 1rem;">
-                <i class="fas fa-arrow-right"></i>
-                العودة للرئيسية
-            </button>
-            <p>&copy; 2024 أنمي جاردن. جميع الحقوق محفوظة.</p>
-        </footer>
-    </div>
-
-    <script>
-        // تحميل وعرض الخبر الكامل
-        document.addEventListener('DOMContentLoaded', function() {
-            const newsContainer = document.getElementById('news-detail-container');
-            const savedNews = localStorage.getItem('currentNews');
-            
-            if (savedNews) {
-                const newsItem = JSON.parse(savedNews);
-                newsContainer.innerHTML = newsItem.fullContent;
+    if (savedNews) {
+        const newsItem = JSON.parse(savedNews);
+        
+        // بناء محتوى الصفحة بشكل ديناميكي
+        newsContainer.innerHTML = `
+            <div class="news-detail">
+                <h1>${newsItem.title}</h1>
+                <div class="news-meta">
+                    <span><i class="fas fa-calendar"></i> ${formatDate(newsItem.date)}</span>
+                    <span><i class="fas fa-newspaper"></i> ${newsItem.source}</span>
+                    <span><i class="fas fa-tag"></i> ${newsItem.category}</span>
+                </div>
                 
-                // تحديث عنوان الصفحة
-                document.title = newsItem.title + ' - أنمي جاردن';
-            } else {
-                newsContainer.innerHTML = `
-                    <div class="error-message">
-                        <div class="error-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <p>لم يتم العثور على الخبر المطلوب</p>
-                        <button onclick="window.close()" class="retry-btn">
-                            <i class="fas fa-arrow-right"></i>
-                            العودة للرئيسية
-                        </button>
-                    </div>
-                `;
-            }
-        });
-    </script>
-</body>
-</html>
+                <img src="${newsItem.image}" alt="${newsItem.title}" onerror="this.src='https://images.unsplash.com/photo-1541562232579-512a21360020?w=800&h=400&fit=crop'">
+                
+                <div class="news-content">
+                    <p>${newsItem.summary}</p>
+                    <p>هذا مجرد ملخص للخبر. للحصول على التفاصيل الكاملة، يرجى زيارة المصدر الأصلي للخبر.</p>
+                </div>
+                
+                <div class="news-tags">
+                    ${newsItem.tags.map(tag => `<span>${tag}</span>`).join('')}
+                </div>
+            </div>
+        `;
+        
+        // تحديث عنوان الصفحة
+        document.title = newsItem.title + ' - أنمي جاردن';
+    } else {
+        newsContainer.innerHTML = `
+            <div class="error-message" style="background: white; color: #333; padding: 2rem; border-radius: 16px; text-align: center;">
+                <div class="error-icon" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <p>لم يتم العثور على الخبر المطلوب</p>
+                <button onclick="window.close()" class="retry-btn" style="margin-top: 1rem;">
+                    <i class="fas fa-arrow-right"></i>
+                    العودة للرئيسية
+                </button>
+            </div>
+        `;
+    }
+});
