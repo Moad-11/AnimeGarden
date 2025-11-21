@@ -8,9 +8,13 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- شريط التقدم -->
+    <div class="progress-bar"></div>
+
     <!-- الهيدر -->
     <header class="header">
         <div class="container">
@@ -19,10 +23,10 @@
                 <p>أخبار الأنمي بالعربية</p>
             </div>
             <nav class="nav">
-                <a href="#" class="nav-link active">الرئيسية</a>
-                <a href="#" class="nav-link">أخبار</a>
-                <a href="#" class="nav-link">مراجعات</a>
-                <a href="#" class="nav-link">اتصل بنا</a>
+                <a href="#" class="nav-link active"><i class="fas fa-home"></i> الرئيسية</a>
+                <a href="#" class="nav-link"><i class="fas fa-newspaper"></i> أخبار</a>
+                <a href="#" class="nav-link"><i class="fas fa-star"></i> مراجعات</a>
+                <a href="#" class="nav-link"><i class="fas fa-envelope"></i> اتصل بنا</a>
             </nav>
         </div>
     </header>
@@ -33,6 +37,20 @@
             <div class="hero-content">
                 <h2>مرحباً بكم في عالم الأنمي</h2>
                 <p>هنا أحدث الأخبار المجمعة من مصادر موثوقة. كل مقالة تحتوي على عنوان، ملخص، ورابط للمصدر الأصلي.</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>تحديث يومي</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-check-circle"></i>
+                        <span>مصادر موثوقة</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-language"></i>
+                        <span>محتوى عربي</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -42,7 +60,7 @@
         <div class="container">
             <div class="section-header">
                 <h2>آخر الأخبار</h2>
-                <p>تحديث يومي لأهم أخبار عالم الأنمي</p>
+                <p>تحديث يومي لأهم أخبار عالم الأنمي من MyAnimeList</p>
             </div>
             
             <div id="loading" class="loading">
@@ -55,8 +73,14 @@
             </div>
             
             <div id="error-message" class="error-message hidden">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
                 <p>عذراً، حدث خطأ في تحميل الأخبار. يرجى المحاولة مرة أخرى.</p>
-                <button id="retry-btn" class="retry-btn">إعادة المحاولة</button>
+                <button id="retry-btn" class="retry-btn">
+                    <i class="fas fa-redo"></i>
+                    إعادة المحاولة
+                </button>
             </div>
         </div>
     </main>
@@ -67,26 +91,38 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>أنمي جاردن</h3>
-                    <p>موقع متخصص في أخبار الأنمي باللغة العربية، نقدم أحدث الأخبار والمراجعات لمحبي الأنمي.</p>
+                    <p>موقع متخصص في أخبار الأنمي باللغة العربية، نقدم أحدث الأخبار والمراجعات لمحبي الأنمي مجاناً.</p>
+                    <div class="footer-logo">
+                        <i class="fas fa-dragon"></i>
+                    </div>
                 </div>
                 <div class="footer-section">
                     <h3>روابط سريعة</h3>
-                    <a href="#">الرئيسية</a>
-                    <a href="#">أخبار</a>
-                    <a href="#">مراجعات</a>
-                    <a href="#">اتصل بنا</a>
+                    <a href="#"><i class="fas fa-arrow-left"></i> الرئيسية</a>
+                    <a href="#"><i class="fas fa-arrow-left"></i> أخبار</a>
+                    <a href="#"><i class="fas fa-arrow-left"></i> مراجعات</a>
+                    <a href="#"><i class="fas fa-arrow-left"></i> اتصل بنا</a>
                 </div>
                 <div class="footer-section">
                     <h3>تابعنا</h3>
                     <div class="social-links">
-                        <a href="#">تويتر</a>
-                        <a href="#">فيسبوك</a>
-                        <a href="#">انستغرام</a>
+                        <a href="#" class="social-link twitter">
+                            <i class="fab fa-twitter"></i>
+                            تويتر
+                        </a>
+                        <a href="#" class="social-link facebook">
+                            <i class="fab fa-facebook"></i>
+                            فيسبوك
+                        </a>
+                        <a href="#" class="social-link instagram">
+                            <i class="fab fa-instagram"></i>
+                            انستغرام
+                        </a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 أنمي جاردن. جميع الحقوق محفوظة.</p>
+                <p>&copy; 2024 أنمي جاردن. جميع الحقوق محفوظة. | مصدر البيانات: MyAnimeList API</p>
             </div>
         </div>
     </footer>
