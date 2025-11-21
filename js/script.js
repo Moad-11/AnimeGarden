@@ -1,83 +1,130 @@
-// بيانات الأخبار (سيتم استخدامها إذا فشل جلب الملف)
-const fallbackNews = [
-    {
-        id: 1,
-        title: "الإعلان عن الموسم الثاني لأنمي Jujutsu Kaisen",
-        summary: "تم الإعلان رسمياً عن إنتاج الموسم الثاني لأنمي Jujutsu Kaisen الذي سيعرض في عام 2024، مع كشف النقاب عن التريلر الرسمي.",
-        source: "أنمي نيوز",
-        date: "2024-01-15",
-        link: "#"
-    },
-    {
-        id: 2,
-        title: "فيلم Demon Slayer يحطم الأرقام القياسية",
-        summary: "فيلم Demon Slayer: Kimetsu no Yaiba - To the Swordsmith Village يحقق إيرادات قياسية في اليابان والعالم خلال عطلة نهاية الأسبوع الأولى.",
-        source: "أنمي تايمز",
-        date: "2024-01-14",
-        link: "#"
-    },
-    {
-        id: 3,
-        title: "أنمي Spy × Family يحصل على موسم جديد",
-        summary: "تم الإعلان عن إنتاج جزء جديد لأنمي Spy × Family الشهير، مع عودة فريق الإنتاج الأساسي والمؤديين الصوتيين.",
-        source: "كرانشي رول",
-        date: "2024-01-13",
-        link: "#"
+// الإصدار المحسن - يجرب مصادر متعددة تلقائياً
+class NewsFetcher {
+    constructor() {
+        this.sources = [
+            this.fetchFromRSS.bind(this),
+            this.fetchFromAPI.bind(this),
+            this.useLocalNews.bind(this)
+        ];
     }
-];
-
-// عناصر DOM
-const newsContainer = document.getElementById('news-container');
-const loadingElement = document.getElementById('loading');
-const errorMessage = document.getElementById('error-message');
-const retryButton = document.getElementById('retry-btn');
-
-// وظيفة تحميل الأخبار
-async function loadNews() {
-    console.log('بدء تحميل الأخبار...');
     
-    // إخفاء رسالة الخطأ وإظهار التحميل
-    errorMessage.classList.add('hidden');
-    loadingElement.classList.remove('hidden');
-    newsContainer.innerHTML = '';
+    async fetchNews() {
+        for (const source of this.sources) {
+            try {
+                const news = await source();
+                if (news && news.length > 0) {
+                    console.log(`تم جلب ${news.length} خبر من ${source.name}`);
+                    return news;
+                }
+            } catch (error) {
+                console.log(`فشل المصدر ${source.name}:`, error);
+                continue;
+            }
+        }
+        return this.getFallbackNews();
+    }
     
-    try {
-        // محاولة جلب البيانات من ملف JSON
-        const response = await fetch('./data/news.json');
+    async fetchFromRSS() {
+        // استخدام خدمة rss2json المجانية
+        const rssUrl = 'https://anime4up.com/feed';
+        const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+        const data = await response.json();
         
-        if (!response.ok) {
-            throw new Error(`خطأ في HTTP: ${response.status}`);
+        return data.items.slice(0, 6).map((item, index) => ({
+            id: index + 1,
+            title: this.cleanText(item.title),
+            summary: this.cleanText(item.description).substring(0, 120) + '...',
+            source: 'Anime4Up',
+            date: new Date().toISOString().split('T')[0],
+            link: item.link
+        }));
+    }
+    
+    async fetchFromAPI() {
+        // بيانات تجريبية - يمكن استبدالها بـ API حقيقي
+        return [
+            {
+                id: 1,
+                title: "أنمي جديد يعلن عنه هذا الأسبوع",
+                summary: "تم الإعلان عن سلسلة أنمي جديدة من استوديو مشهور",
+                source: "المصدر الخارجي",
+                date: new Date().toISOString().split('T')[0],
+                link: "#"
+            },
+            {
+                id: 2,
+                title: "حلقات جديدة تُعرض هذا الشهر",
+                summary: "تعرف على أهم الحلقات الجديدة التي ستعرض هذا الشهر",
+                source: "المصدر الخارجي", 
+                date: new Date().toISOString().split('T')[0],
+                link: "#"
+            }
+        ];
+    }
+    
+    async useLocalNews() {
+        try {
+            const response = await fetch('./data/news.json');
+            return await response.json();
+        } catch (error) {
+            return null;
         }
-        
-        const newsData = await response.json();
-        console.log('تم جلب البيانات:', newsData);
-        
-        if (newsData && newsData.length > 0) {
-            displayNews(newsData);
-        } else {
-            throw new Error('لا توجد بيانات في الملف');
-        }
-        
-    } catch (error) {
-        console.warn('لا يمكن جلب الملف، استخدام البيانات الافتراضية:', error);
-        // استخدام البيانات الافتراضية إذا فشل جلب الملف
-        displayNews(fallbackNews);
-    } finally {
-        loadingElement.classList.add('hidden');
+    }
+    
+    getFallbackNews() {
+        return [{
+            id: 1,
+            title: "مرحباً بموقع أنمي جاردن",
+            summary: "سيتم عرض أحدث أخبار الأنمي هنا تلقائياً قريباً",
+            source: "أنمي جاردن",
+            date: new Date().toISOString().split('T')[0],
+            link: "#"
+        }];
+    }
+    
+    cleanText(text) {
+        return text ? text.replace(/<[^>]*>/g, '').trim() : 'لا يوجد نص';
     }
 }
 
-// وظيفة عرض الأخبار
+// استخدام الكود
+const newsFetcher = new NewsFetcher();
+
+async function loadNews() {
+    showLoading();
+    
+    try {
+        const news = await newsFetcher.fetchNews();
+        displayNews(news);
+    } catch (error) {
+        console.error('خطأ في تحميل الأخبار:', error);
+        showError();
+    } finally {
+        hideLoading();
+    }
+}
+
+function showLoading() {
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('news-container').innerHTML = '';
+    document.getElementById('error-message').classList.add('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loading').classList.add('hidden');
+}
+
+function showError() {
+    document.getElementById('error-message').classList.remove('hidden');
+}
+
+// الباقي من الكود السابق يبقى كما هو...
 function displayNews(news) {
-    console.log('عرض الأخبار:', news);
+    // نفس دالة displayNews السابقة
+    const newsContainer = document.getElementById('news-container');
     
     if (!news || news.length === 0) {
-        newsContainer.innerHTML = `
-            <div class="no-news" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                <h3>لا توجد أخبار متاحة حالياً</h3>
-                <p>يرجى التحقق مرة أخرى لاحقاً</p>
-            </div>
-        `;
+        newsContainer.innerHTML = '<p>لا توجد أخبار متاحة حالياً</p>';
         return;
     }
     
@@ -99,11 +146,10 @@ function displayNews(news) {
     `).join('');
     
     newsContainer.innerHTML = newsHTML;
-    console.log('تم عرض الأخبار بنجاح');
 }
 
-// وظيفة تنسيق التاريخ
 function formatDate(dateString) {
+    // نفس دالة formatDate السابقة
     try {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         const date = new Date(dateString);
@@ -113,15 +159,6 @@ function formatDate(dateString) {
     }
 }
 
-// أحداث
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('الصفحة محملة، بدء تحميل الأخبار...');
-    loadNews();
-});
-
-if (retryButton) {
-    retryButton.addEventListener('click', loadNews);
-}
-
-// إظهار رسالة في الكونسول للمساعدة في التصحيح
-console.log('تم تحميل script.js بنجاح');
+// التشغيل
+document.addEventListener('DOMContentLoaded', loadNews);
+document.getElementById('retry-btn')?.addEventListener('click', loadNews);
